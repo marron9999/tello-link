@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Tello</title>
+<script type="text/javascript" src="index.js"></script>
+<script type="text/javascript" src="voice.js"></script>
+<link type="text/css" href="index.css" rel="stylesheet">
+<link rel="icon" href="drone_icon_216206.ico">
+<body>
+<div id=tableY>
+<button onclick="onvoice()" id=voice><img src=01099.png></button>
+&nbsp;
+<button onclick="connect(1)" id=connect1>接続</button
+><button onclick="connect(0)" id=connect0>切断</button>
+&nbsp;
+<button onclick="stream(1)" id=stream1>カメラ</button
+><button onclick="stream(0)" id=stream0>消す</button>
+&nbsp;
+<button onclick="takeoff(1)" id=takeoff1>テイクオフ/離陸</button
+><button onclick="takeoff(0)" id=takeoff0>ランド/着陸</button>
+<button onclick="takeoff(-1)" id=poweroff>緊急</button>
+</div>
+<div id=tableX>
+<div id=table0><canvas id="video-canvas"></canvas></div>
+
+<div id=table1>
+<table border=0>
+<tr><td nowrap width=1>電気残量:</td><td nowrap width=99% id=bat></td></tr>
+<tr><td nowrap>フライト:</td><td nowrap id=time ></td></tr>
+<tr><td nowrap>TOF高度:</td><td nowrap id=tof ></td></tr>
+<tr><td nowrap>高度:</td><td nowrap id=h ></td></tr>
+<tr><td colspan=2>
+<div id="tello-message">
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+</div>
+</td></tr>
+</table>
+</div>
+
+<div id=tableG>
+<pre>&#x2ba5; アップ/上/Ｗ 　　　 ↑/前　　
+ライト/Ａ　&#x2b6e;　&#x2b6f; レフト/Ｄ　　左/←　→/右　
+&#x2ba6; ダウン/下/Ｓ　　　　↓/後　　</pre>
+</div>
+
+
+<div id=table3>
+<table border=0>
+<tr><td><div style="position:relative;width:100px;height:75px;">
+<img id=imgz src=tello-f.png >
+<div id=ru>&#x27A0;</div>
+<div id=rd>&#x27A0;</div>
+<div id=rl>&#x21BA;</div>
+<div id=rr>&#x21BB;</div>
+</div></td>
+<td><div style="position:relative;width:100px;">
+<img id=img0 src=tello0.png >
+<img id=img1 src=tello1.png>
+<img id=img2 src=tello2.png>
+<img id=img4 src=tello3.png>
+<img id=img3 src=tello4.png>
+<div id=g0>&#x27A4;</div>
+<div id=g3>&#x27A4;</div>
+<div id=g6>&#x27A4;</div>
+<div id=g9>&#x27A4;</div>
+</div>
+</td></tr>
+</table>
+</div>
+
+<div id=table2>
+<table border=0>
+<tr><td nowrap width=1>ピッチ:</td><td nowrap width=99% id=pitch></td></tr>
+<tr><td nowrap>ロール:</td><td nowrap id=roll ></td></tr>
+<tr><td nowrap>ヨー:</td><td nowrap id=yaw ></td></tr>
+<tr><td nowrap>速度 X:</td><td nowrap id=vgx></td></tr>
+<tr><td nowrap>速度 Y:</td><td nowrap id=vgy ></td></tr>
+<tr><td nowrap>速度 Z:</td><td nowrap id=vgz ></td></tr>
+
+<tr><td nowrap>加速度 X:</td><td nowrap id=agx ></td></tr>
+<tr><td nowrap>加速度 Y:</td><td nowrap id=agy ></td></tr>
+<tr><td nowrap>加速度 Z:</td><td nowrap id=agz ></td></tr>
+<tr><td nowrap>気圧:</td><td nowrap id=baro ></td></tr>
+<tr><td nowrap>最高温度:</td><td nowrap id=temph ></td></tr>
+<tr><td nowrap>最低温度:</td><td nowrap id=templ ></td></tr>
+</table></div>
+</div>
+</body>
+</html>
+
