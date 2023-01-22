@@ -21,7 +21,6 @@ namespace tello_link
 		private int frame_port = 11112;
 		public UDPStream() : base("UDPStream")
 		{
-			vc = new VideoCapture();
 		}
 		public override void Open()
 		{
@@ -42,7 +41,7 @@ namespace tello_link
 		{
 			if (Program.emulate > 0)
 			{
-				log(name + ":" + Port, "open");
+				log(name, "open");
 				while (true)
 				{
 					Received recv = await Receive();
@@ -56,14 +55,16 @@ namespace tello_link
 						}
 					}
 				}
-				log(name + ":" + Port, "close");
+				log(name, "close");
 				return;
 			}
-			client = new UdpClient();
+			//client = new UdpClient();
 			try
 			{
-				log(name + ":" + Port, "Open, FPS:" + stream_fps);
-				vc.Open("udp:///0.0.0.0:" + stream_port);
+				string url = "udp://0.0.0.0:11111?overrun_nonfatal=1";
+				log(name, "open " + url + ", FPS:" + stream_fps);
+				vc = new VideoCapture();
+				vc.Open(url);
 				vc.Fps = stream_fps;
 				var mat = new Mat();
 				while (vc.IsOpened())
@@ -92,17 +93,17 @@ namespace tello_link
 						}
 					}
 				}
-				log(name + Port, "close");
+				log(name, "close");
 			}
 			catch (Exception ex)
 			{
 				if (!vc.IsDisposed)
 				{
-					log(name, "error: " + ex.Message);
+					log(fullname(), "error: " + ex.Message);
 					Logger.WriteLine(ex.StackTrace);
 				}
 			}
-			client.Close();
+			//client.Close();
 			if (!vc.IsDisposed)
 			{
 				vc.Dispose();

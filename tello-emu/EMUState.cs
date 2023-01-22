@@ -15,9 +15,28 @@ namespace tello_link
 {
 	public class EMUState : EMURunner
 	{
+		public EMUTello tello;
 		private UdpClient state;
 		private Dictionary<string, string> now = new Dictionary<string, string>();
 		private int port;
+		public int bat = 0;
+		public int tof = 0;
+		public bool fly;
+		public long fly_time = 0;
+		public long fly_prev = 0;
+		public DateTime take_time = DateTime.Now;
+		public DateTime reset_time = DateTime.Now;
+		public void reset()
+		{
+			reset_time = DateTime.Now;
+			tof = 0;
+			bat = 100;
+			fly = false;
+			fly_time = 0;
+			fly_prev = 0;
+			now["bat"] = "100";
+			now["time"] = "0";
+		}
 
 		public EMUState()
 		{
@@ -45,16 +64,32 @@ namespace tello_link
 			state.Close();
 			base.Close();
 		}
-
-
-
 		public override void Run()
 		{
 			log("EMUState", "connect 127.0.0.1:" + port);
 			state.Connect("127.0.0.1", port);
 			while (true)
 			{
+				DateTime dtn = DateTime.Now;
 				if (_stop) break;
+				TimeSpan s = dtn - reset_time;
+				if(fly) 
+				{
+					s = dtn - take_time;
+					fly_time = fly_prev + (long) s.TotalSeconds;
+					now["time"] = "" + fly_time;
+				}
+				long ts = (long)s.TotalSeconds / 30;
+				ts += fly_time / 8;
+				bat = 100 - (int)ts;
+				if (bat < 0) bat = 0;
+				now["bat"] = "" + bat;
+				if(bat < 10)
+				{
+					tello.land();
+				}
+				now["tof"] = "" + tof;
+				now["h"] = "" + tof;
 				string stat = "";
 				foreach (string key in now.Keys)
 				{
@@ -70,7 +105,7 @@ namespace tello_link
 				{
 					// NONE;
 				}
-				Thread.Sleep(1000);
+				Thread.Sleep(500);
 			}
 			log("EMUState", "discpnnect 127.0.0.1:" + port);
 		}

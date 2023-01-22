@@ -12,8 +12,6 @@ using System.Xml.Linq;
 
 namespace tello_link
 {
-
-	//Client
 	public class UDPState : UDPBase
 	{
 		public UDPState() : base("UDPState")
@@ -25,7 +23,7 @@ namespace tello_link
 		}
 		public override async void Run()
 		{
-			log(name + ":" + Port, "open");
+			log(fullname(), "open");
 			while (true)
 			{
 				Received recv = await Receive();
@@ -34,10 +32,18 @@ namespace tello_link
 				if(rc.Length > 0
 				&& Program.tcpServer != null)
 				{
+					if(recv.Message.StartsWith("pitch:"))
+					{
+						//log(fullname(), recv.Message);
+					}
+					else
+					{
+						log(fullname(), recv.Message);
+					}
 					Program.tcpServer.send(rc);
 				}
 			}
-			log(name + ":" + Port, "close");
+			log(fullname(), "close");
 		}
 
 		private Dictionary<string, string> status = new Dictionary<string, string>();

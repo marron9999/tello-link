@@ -1,8 +1,10 @@
-﻿using Microsoft.VisualBasic.Devices;
+﻿using System.DirectoryServices;
+using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 using System.Xml.Linq;
 
 #pragma warning disable CS8601 // Null 参照代入の可能性があります。
@@ -15,66 +17,70 @@ namespace tello_link
 {
 	public class UDPTello : UDPBase
 	{
-		public UdpClient tello;
 		private UDPState state;
 		private UDPStream stream;
-		private SDKRunner runner;
+		private UDPTelloSDK tello_sdk;
+		private int tello_port;
+		private string tello_addr;
 
 		public UDPTello() : base("UDPTello")
 		{
-			tello = new UdpClient();
 			state = new UDPState();
 			stream = new UDPStream();
-			runner = new SDKRunner();
+			tello_sdk = new UDPTelloSDK();
+			tello_sdk.tello = this;
 		}
 
 		public override void Open()
 		{
 			int port = Program.Setting("link_port", 8889);
-			base.Open(port);
-			state.Open();
-			stream.Open();
+			string addr = "0.0.0.0";
 			if (Program.emulate > 0)
 			{
-				port = Program.Setting("emu_port", 8888);
-				log("UDPTello", "connect 127.0.0.1:" + port);
-				tello.Connect("127.0.0.1", port);
-			} else {
-				port = Program.Setting("tello_port", 8889);
-				string addr = Program.Setting("tello_addr", "192.168.10.1");
-				log("UDPTello", "connect " + addr + ":" + port);
-				tello.Connect(addr, port);
+				tello_port = Program.Setting("emu_port", 8888);
+				tello_addr = "127.0.0.1";
 			}
-			runner.tello = this;
-			runner.Open();
+			else {
+				tello_port = Program.Setting("tello_port", 8889);
+				tello_addr = Program.Setting("tello_addr", "192.168.10.1");
+				IPAddress[] hips = Dns.GetHostEntry(Dns.GetHostName()).AddressList;
+				for (int i = 0; i < hips.Length; i++)
+				{
+					string taddr = hips[i].ToString();
+					if (taddr.StartsWith("192.168.10."))
+					{
+						addr = taddr;
+						break;
+					}
+				}
+			}
+			base.Open(addr, port);
+			state.Open();
+			stream.Open();
+			tello_sdk.Open();
 		}
 		public override void Close()
 		{
-			runner.Close();
+			tello_sdk.Close();
 			stream.Close();
 			state.Close();
 			base.Close();
-			tello.Close();
 		}
 
 		public override async void Run()
 		{
-			log(name + ":" + Port, "open");
+			log(fullname(), "open");
 			while (true)
 			{
 				Received recv = await Receive();
 				if (recv.Sender == null) break;
-				//if(_logger)
-				//{
-				//	log(name, "recv: " + recv.Message);
-				//}
-				//_logger = true;
-					lock (_lock)
+				if(_logging)
 				{
-					_result = recv.Message;
+					log(name + ": " + recv.Sender, recv.Message);
 				}
+				_result = recv.Message;
 			}
-			log(name + ":" + Port, "close");
+			log(fullname(), "close");
 		}
 
 		public bool mode_sdk = false;
@@ -82,45 +88,53 @@ namespace tello_link
 		public bool mode_eye = false;
 		private Object _lock = new Object();
 		private string _result = null;
-
-		private string result(string cmd, int timeout = 5, bool log = true)
+		private bool _logging = true;
+		public string result(string cmd, bool log)
 		{
-			DateTime _timeout = DateTime.Now;
-			_timeout = _timeout.AddSeconds(timeout);
-			try
+			return result(cmd, 5, log);
+		}
+
+		public string result(string cmd, int timeout = 5, bool logging = true)
+		{
+			lock (_lock)
 			{
-				Task<string> task = new Task<string>(() => {
-					string __result = _result = null;
-					//if(log)
-					//{
-					//	Logger.WriteLine(name + ": " + cmd);
-					//}
-					tello.SendAsync(Encoding.ASCII.GetBytes(cmd));
-					while (__result == null)
-					{
-						Thread.Sleep(100);
-						lock (_lock)
+				DateTime _timeout = DateTime.Now;
+				_timeout = _timeout.AddSeconds(timeout);
+				_logging = logging;
+				_result = null;
+				try
+				{
+					Task<string> task = new Task<string>(() => {
+						string __result = null;
+						if(_logging)
 						{
+							Logger.WriteLine(name + ": " + cmd);
+						}
+						byte[] buf = Encoding.ASCII.GetBytes(cmd);
+						client.SendAsync(buf, buf.Length, tello_addr, tello_port);
+						while (__result == null)
+						{
+							Thread.Sleep(100);
 							__result = _result;
 						}
 						if (_timeout < DateTime.Now)
 						{
 							return "error (timeout)";
 						}
+						return __result;
+					});
+					task.Start();
+					task.Wait();
+					if (_logging)
+					{
+						Logger.WriteLine(name + ": " + cmd + " " + task.Result);
 					}
-					return __result;
-				});
-				task.Start();
-				task.Wait(3 * 1000);
-				if (log)
-				{
-					Logger.WriteLine(name + ": " + cmd + " " + task.Result);
+					return task.Result;
 				}
-				return cmd + " " + task.Result;
-			}
-			catch (Exception ex)
-			{
-				return cmd + " error (" + ex.ToString() + ")";
+				catch (Exception ex)
+				{
+					return "error (" + ex.ToString() + ")";
+				}
 			}
 		}
 
@@ -166,48 +180,19 @@ namespace tello_link
 
 		public string parse(string cmd)
 		{
-			if (cmd.Equals("connect", StringComparison.OrdinalIgnoreCase))
-			{
-				string rc = connect();
-				return rc;
-			}
-			if (cmd.Equals("disconnect", StringComparison.OrdinalIgnoreCase))
-			{
-				string rc = disconnect();
-				return rc;
-			}
-			if (cmd.Equals("streamon", StringComparison.OrdinalIgnoreCase))
-			{
-				string rc = streamon();
-				return rc;
-			}
-			if (cmd.Equals("streamoff", StringComparison.OrdinalIgnoreCase))
-			{
-				string rc = streamoff();
-				return rc;
-			}
-			if (cmd.Equals("takeoff", StringComparison.OrdinalIgnoreCase))
-			{
-				string rc = takeoff();
-				return rc;
-			}
-			if (cmd.Equals("land", StringComparison.OrdinalIgnoreCase))
-			{
-				string rc = land();
-				return rc;
-			}
+			string rc = "error (unknown)";
 			try
 			{
 				if (cmd[0] == '!')
 				{
-					string rc = result(cmd.Substring(1).Trim());
-					return rc;
+					rc = result(cmd.Substring(1).Trim());
+					return cmd + " " + rc;
 				}
 				string[] c = cmd.Split(" ");
+				c[0] = c[0].Replace("?", "_");
 				Type t = this.GetType();
 				MethodInfo mi = t.GetMethod(c[0]);
 				if(mi != null) {
-					string rc = "error";
 					if (c.Length <= 1)
 					{
 						rc = "" + mi.Invoke(this, null);
@@ -221,27 +206,25 @@ namespace tello_link
 					if (rc.Length == 0)
 					{
 						rc = result(cmd);
-					} else
-					{
-						rc = cmd + " " + rc;
 					}
-					return rc;
+					return cmd + " " + rc;
 				}
-				return cmd + " error (unknown)";
 			}
 			catch (Exception ex)
 			{
-				return "error (" + ex.ToString() + ")";
+				rc = "error (" + ex.ToString() + ")";
 			}
-#if false
-			return cmd + " error (unknown)";
-#endif
+			return cmd + " " + rc;
 		}
 
 		public string connect()
 		{
 			if (!mode_sdk) return "connect error (nosdk)";
-			return "connect ok";
+			if(Program.emulate > 0)
+			{
+				result("@reset", false);
+			}
+			return "ok";
 		}
 		public string disconnect()
 		{
@@ -250,7 +233,7 @@ namespace tello_link
 			{
 				result("streamoff");
 			}
-			return "disconnect ok";
+			return "ok";
 		}
 
 		// ------------------
@@ -261,24 +244,26 @@ namespace tello_link
 			// Enter SDK mode.
 			// ok / error
 
-			mode_sdk = true;
-			string rc = result("command", 1, false);
+			string rc = result("command", false);
+			if (rc.IndexOf("ok") >= 0)
+				mode_sdk = true;
 			return rc;
 		}
 		public string takeoff()
 		{
 			// Auto takeoff.
-			if (!mode_sdk) return "takeoff error (nosdk)";
-			if (mode_fly) return "takeoff ok";
-			mode_fly = true;
+			if (!mode_sdk) return "error (nosdk)";
+			if (mode_fly) return "ok";
 			string rc = result("takeoff", 10);
+			if(rc.IndexOf("ok") >= 0)
+				mode_fly = true;
 			return rc;
 		}
 		public string land()
 		{
 			//Auto landing.
-			if (!mode_sdk) return "land error (nosdk)";
-			if (!mode_fly) return "land ok";
+			if (!mode_sdk) return "error (nosdk)";
+			//if (!mode_fly) return "ok";
 			mode_fly = false;
 			string rc = result("land", 10);
 			return rc;
@@ -286,9 +271,9 @@ namespace tello_link
 		public string streamon()
 		{
 			// Enable video stream.
-			if (!mode_sdk) return "streamon error (nosdk)";
+			if (!mode_sdk) return "error (nosdk)";
 			string rc = result("streamon");
-			if(rc.Equals("streamon ok", StringComparison.OrdinalIgnoreCase))
+			if (rc.IndexOf("ok") >= 0)
 			{
 				mode_eye = true;
 			}
@@ -297,9 +282,9 @@ namespace tello_link
 		public string streamoff()
 		{
 			// Disable video stream.
-			if (!mode_sdk) return "streamon error (nosdk)";
+			if (!mode_sdk) return "error (nosdk)";
 			string rc = result("streamoff");
-			if (rc.Equals("streamoff ok", StringComparison.OrdinalIgnoreCase))
+			if (rc.IndexOf("ok") >= 0)
 			{
 				mode_eye = false;
 			}
@@ -584,59 +569,72 @@ namespace tello_link
 		// ------------------
 		// Read Commands
 		// ------------------
-		public string speed()
+		public string speed_()
 		{
 			// Obtain current speed (cm/s). “x” = 10-100
 			if (!mode_sdk) return "error -1";
 			return "";
 		}
-		public string battery()
+		public string battery_()
 		{
 			// Obtain current battery percentage. “x” = 0-100
 			if (!mode_sdk) return "error -1";
 			return "";
 		}
-		public string time()
+		public string time_()
 		{
 			// Obtain current flight time. “time”
 			if (!mode_sdk) return "error -1";
 			return "";
 		}
-		public string wifi()
+		public string wifi_()
 		{
 			// Obtain Wi-Fi SNR. “snr”
 			if (!mode_sdk) return "error -1";
-			return "";
+			return tello_sdk.wifi;
 		}
-		public string sdk()
+		public string sdk_()
 		{
 			// Obtain the Tello SDK version. “sdk version”
 			if (!mode_sdk) return "error -1";
-			return "";
+			return tello_sdk.sdk;
 		}
-		public string sn()
+		public string sn_()
 		{
 			// Obtain the Tello serial number. “serial number”
 			if (!mode_sdk) return "error -1";
-			return "";
+			return tello_sdk.sn;
 		}
 	}
 
-	public class SDKRunner : Runner
+	public class UDPTelloSDK : Runner
 	{
 		public UDPTello tello;
+		public string sn = "";
+		public string sdk = "";
+		public string wifi = "";
 		public override void Run()
 		{
 			while (true)
 			{
 				string rc = tello.Command();
-				if (rc.Equals("command ok", StringComparison.OrdinalIgnoreCase))
+				if (rc.IndexOf("ok") >= 0)
 				{
-					tello.mode_sdk = true;
 					Program.Connected(true);
+					sn = tello.result("sn?");
+					sdk = tello.result("sdk?");
+					wifi = tello.result("wifi?");
+					Program.tcpServer.hello();
 					break;
 				}
-				Thread.Sleep(1000);
+			}
+			while (true)
+			{
+				string rc = tello.result("battery?", 1, false);
+				if(rc == null){
+					break;
+				}
+				Thread.Sleep(10 * 1000);
 			}
 		}
 	}

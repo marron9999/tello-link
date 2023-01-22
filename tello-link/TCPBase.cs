@@ -18,11 +18,18 @@ namespace tello_link
 {
 	public class TCPBase : Runner
 	{
-		public int port = 8080;
+		protected string name = "TCP";
+		protected int Port = 8080;
+		protected IPAddress Addr = IPAddress.Any;
+
 		protected HttpListener listener;
 
 		public TCPBase()
 		{
+		}
+		public string fullname()
+		{
+			return name + " " + Addr + ":" + Port;
 		}
 		public override void Stop()
 		{
@@ -34,10 +41,10 @@ namespace tello_link
 		{
 			try
 			{
-				log("TCP:" + port, "open");
+				log(fullname(), "open");
 				listener = new HttpListener();
 				listener.Prefixes.Clear();
-				listener.Prefixes.Add("http://+:" + port + "/"); // プレフィックスの登録
+				listener.Prefixes.Add("http://+:" + Port + "/"); // プレフィックスの登録
 				//listener.TimeoutManager.DrainEntityBody = new TimeSpan(23, 59, 59);
 				//listener.TimeoutManager.IdleConnection = new TimeSpan(23, 59, 59);
 				listener.Start();
@@ -54,11 +61,11 @@ namespace tello_link
 			{
 				if(listener.IsListening)
 				{
-					log("TCPBase error", ex.Message);
+					log(fullname(), ex.Message);
 					Logger.WriteLine(ex.StackTrace);
 				}
 			}
-			log("TCP:" + port, "close");
+			log(fullname(), "close");
 		}
 		protected virtual void Request(HttpListenerContext context)
 		{
@@ -81,7 +88,7 @@ namespace tello_link
 				{
 					path += "index.html";
 				}
-				log("TCP:" + port, path);
+				log(fullname(), path);
 				string node = path.Substring(1).Replace(".", "_");
 				Object o = Resources.ResourceManager.GetObject(node);
 				if (o != null)
@@ -110,7 +117,7 @@ namespace tello_link
 				if(path.StartsWith("/tello/"))
 				{
 					path = path.Substring(6);
-					node = "c:/java/github/tello-html";
+					node = "c:/java/github/tello-link/tello-html";
 				}
 				else node = ".";
 #else
@@ -134,7 +141,7 @@ namespace tello_link
 			}
 			catch (Exception ex)
 			{
-				log("TCP:" + port, ex.ToString());
+				log(fullname(), ex.ToString());
 				Logger.WriteLine(ex.StackTrace);
 			}
 			res.StatusCode = (int)HttpStatusCode.NotFound;

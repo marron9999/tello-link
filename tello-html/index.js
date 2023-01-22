@@ -2,6 +2,9 @@ var server = "127.0.0.1";
 var tello = false;
 var camera = false;
 var ws1, ws2;
+var line = 0;
+var bat = 0;
+var ani = -1;
 function elm(id) {
 	return document.getElementById(id);
 }
@@ -66,28 +69,16 @@ window.onload = function() {
 			camera = false;
 		} else
 		if(event.data == "takeoff ok") {
-			elm("img1").className = "g1";
-			elm("img2").className = "g1";
-			elm("img3").className = "g1";
-			elm("img4").className = "g1";
+			flyani(1);
 		} else
 		if(event.data.indexOf("takeoff error") >= 0) {
-			elm("img1").className = "";
-			elm("img2").className = "";
-			elm("img3").className = "";
-			elm("img4").className = "";
+			flyani(-1);
 		} else
 		if(event.data == "land ok") {
-			elm("img1").className = "";
-			elm("img2").className = "";
-			elm("img3").className = "";
-			elm("img4").className = "";
+			flyani(-1);
 		} else
 		if(event.data == "emergency ok") {
-			elm("img1").className = "";
-			elm("img2").className = "";
-			elm("img3").className = "";
-			elm("img4").className = "";
+			flyani(-1);
 		}
 		let json = {};
 		let er=1;
@@ -106,13 +97,33 @@ window.onload = function() {
 					e.style.backgroundColor = "#ff88";
 					e.innerHTML = "" + json[name];
 				}
+				if(name == "bat") {
+					bat = parseInt(json[name]);
+					let c = elm("batc");
+					c.style.width = "calc(" + bat + "% - 1px)";
+					if(bat >= 50) {
+						c.style.background = "#0f05";
+
+					} else if(bat >= 25) {
+						c.style.background = "#f905";
+					} else {
+						c.style.background = "#f005";
+						e.style.color = "red";
+					}
+					flyani(ani);
+				}
 			}
 		}
 		if(er>0) {
 			let e = elm('tello-message');
-			let p = e.innerHTML.indexOf("</div>");
-			e.innerHTML = e.innerHTML.substr(p+6)
+			if(line < 50) {
+				line++;
+				e.innerHTML += "<div>" + event.data + "</div>";
+			} else {
+				let p = e.innerHTML.indexOf("</div>");
+				e.innerHTML = e.innerHTML.substr(p+6)
 				+ "<div>" + event.data + "</div>";
+			}
 			e.scrollBy(0, 9999);
 		}
 	};
@@ -251,10 +262,7 @@ function stream(sw) {
 }
 function takeoff(sw) {
 	if(sw > 0) {
-		elm("img1").className = "g0";
-		elm("img2").className = "g0";
-		elm("img3").className = "g0";
-		elm("img4").className = "g0";
+		flyani(0);
 		ws1.send("takeoff");
 		return;
 	}
@@ -263,6 +271,21 @@ function takeoff(sw) {
 		return;
 	}
 	ws1.send("land");
+}
+function flyani(sw) {
+	ani = sw;
+	if(sw < 0) {
+		elm("img1").className = "";
+		elm("img2").className = "";
+		elm("img3").className = "";
+		elm("img4").className = "";
+		return;
+	}
+	let c = (bat>=50)? "g" : (bat>=25)? "y" : "r";
+	elm("img1").className = c + sw;
+	elm("img2").className = c + sw;
+	elm("img3").className = c + sw;
+	elm("img4").className = c + sw;
 }
 function stop() {
 	ws1.send("stop");

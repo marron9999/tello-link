@@ -9,15 +9,12 @@
 <link rel="icon" href="drone_icon_216206.ico">
 <body>
 <div id=tableY>
-<button onclick="onvoice()" id=voice><img src=01099.png></button>
-&nbsp;
-<button onclick="connect(1)" id=connect1>接続</button
-><button onclick="connect(0)" id=connect0>切断</button>
-&nbsp;
-<button onclick="stream(1)" id=stream1>カメラ</button
-><button onclick="stream(0)" id=stream0>消す</button>
-&nbsp;
-<button onclick="takeoff(1)" id=takeoff1>テイクオフ/離陸</button
+<button onclick="onvoice()" id=voice><img src=01099.png></button
+>&nbsp;&nbsp;<button onclick="connect(1)" id=connect1>接続</button
+><button onclick="connect(0)" id=connect0>切断</button
+>&nbsp;&nbsp;<button onclick="stream(1)" id=stream1>カメラ</button
+><button onclick="stream(0)" id=stream0>消す</button
+>&nbsp;&nbsp;<button onclick="takeoff(1)" id=takeoff1>テイクオフ/離陸</button
 ><button onclick="takeoff(0)" id=takeoff0>ランド/着陸</button>
 <button onclick="takeoff(-1)" id=poweroff>緊急</button>
 </div>
@@ -26,22 +23,13 @@
 
 <div id=table1>
 <table border=0>
-<tr><td nowrap width=1>電気残量:</td><td nowrap width=99% id=bat></td></tr>
-<tr><td nowrap>フライト:</td><td nowrap id=time ></td></tr>
-<tr><td nowrap>TOF高度:</td><td nowrap id=tof ></td></tr>
-<tr><td nowrap>高度:</td><td nowrap id=h ></td></tr>
-<tr><td colspan=2>
+<tr><td class=c1 nowrap width=50>電気残量</td><td class=c2 nowrap width=55 style="position:relative;"
+><span id=bat>&nbsp;</span><span id=batc></span></td><td nowrap></td></tr>
+<tr><td class=c1 nowrap>フライト</td><td class=c2 nowrap id=time ></td></tr>
+<tr><td class=c1 nowrap>TOF高度</td><td class=c2 nowrap id=tof ></td></tr>
+<tr><td class=c1 nowrap>高度</td><td class=c2 nowrap id=h ></td></tr>
+<tr><td colspan=3>
 <div id="tello-message">
-<div>&nbsp;</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div>
 </div>
 </td></tr>
 </table>
@@ -63,7 +51,7 @@
 <div id=rl>&#x21BA;</div>
 <div id=rr>&#x21BB;</div>
 </div></td>
-<td><div style="position:relative;width:100px;">
+<td><div style="position:relative;width:75px;">
 <img id=img0 src=tello0.png >
 <img id=img1 src=tello1.png>
 <img id=img2 src=tello2.png>
@@ -80,19 +68,19 @@
 
 <div id=table2>
 <table border=0>
-<tr><td nowrap width=1>ピッチ:</td><td nowrap width=99% id=pitch></td></tr>
-<tr><td nowrap>ロール:</td><td nowrap id=roll ></td></tr>
-<tr><td nowrap>ヨー:</td><td nowrap id=yaw ></td></tr>
-<tr><td nowrap>速度 X:</td><td nowrap id=vgx></td></tr>
-<tr><td nowrap>速度 Y:</td><td nowrap id=vgy ></td></tr>
-<tr><td nowrap>速度 Z:</td><td nowrap id=vgz ></td></tr>
+<tr><td class=c1 nowrap width=50>ピッチ</td><td class=c2 nowrap width=55 id=pitch></td></tr>
+<tr><td class=c1 nowrap>ロール</td><td class=c2 nowrap id=roll ></td></tr>
+<tr><td class=c1 nowrap>ヨー</td><td class=c2 nowrap id=yaw ></td></tr>
+<tr><td class=c1 nowrap>速度 X</td><td class=c2 nowrap id=vgx></td></tr>
+<tr><td class=c1 nowrap>速度 Y</td><td class=c2 nowrap id=vgy ></td></tr>
+<tr><td class=c1 nowrap>速度 Z</td><td class=c2 nowrap id=vgz ></td></tr>
 
-<tr><td nowrap>加速度 X:</td><td nowrap id=agx ></td></tr>
-<tr><td nowrap>加速度 Y:</td><td nowrap id=agy ></td></tr>
-<tr><td nowrap>加速度 Z:</td><td nowrap id=agz ></td></tr>
-<tr><td nowrap>気圧:</td><td nowrap id=baro ></td></tr>
-<tr><td nowrap>最高温度:</td><td nowrap id=temph ></td></tr>
-<tr><td nowrap>最低温度:</td><td nowrap id=templ ></td></tr>
+<tr><td class=c1 nowrap>加速度 X</td><td class=c2 nowrap id=agx ></td></tr>
+<tr><td class=c1 nowrap>加速度 Y</td><td class=c2 nowrap id=agy ></td></tr>
+<tr><td class=c1 nowrap>加速度 Z</td><td class=c2 nowrap id=agz ></td></tr>
+<tr><td class=c1 nowrap>気圧</td><td class=c2 nowrap id=baro ></td></tr>
+<tr><td class=c1 nowrap>最高温度</td><td class=c2 nowrap id=temph ></td></tr>
+<tr><td class=c1 nowrap>最低温度</td><td class=c2 nowrap id=templ ></td></tr>
 </table></div>
 </div>
 </body>

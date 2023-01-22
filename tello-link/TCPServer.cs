@@ -6,6 +6,8 @@ using System.Text;
 using System.Drawing.Imaging;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 #pragma warning disable CS8601 // Null 参照代入の可能性があります。
 #pragma warning disable CS8618 // null 非許容のフィールドには、コンストラクターの終了時に null 以外の値が入っていなければなりません。Null 許容として宣言することをご検討ください。
@@ -73,6 +75,15 @@ namespace tello_link
 		{
 			return busy;
 		}
+		public void hello()
+		{
+			busy = true;
+			Parallel.ForEach(client, p =>
+			{
+				p.hello();
+			});
+			busy = false;
+		}
 	}
 
 	public class WSRunner : Runner
@@ -85,12 +96,23 @@ namespace tello_link
 			base.Stop();
 			socket.Abort();
 		}
+		public void hello()
+		{
+			if (Program.udpTello.mode_sdk)
+			{
+				send("Hello");
+				send(Program.udpTello.parse("sdk?"));
+				send(Program.udpTello.parse("sn?"));
+				send(Program.udpTello.parse("wifi?"));
+			}
+		}
 		public override async void Run()
 		{
 			id = (++service.id);
 			string url = service.context.Request.RemoteEndPoint.Address.ToString();
-			Logger.WriteLine("WS:" + service.port + "[" + id + "] connect: " + url);
+			Logger.WriteLine("WS:" + service.fullname()+ "[" + id + "] connect: " + url);
 			socket = (await service.context.AcceptWebSocketAsync(null)).WebSocket;
+			hello();
 			while (socket.State == WebSocketState.Open)
 			{
 				if (_stop) break;
@@ -126,19 +148,19 @@ namespace tello_link
 				{
 					if(socket.State == WebSocketState.Open)
 					{
-						Logger.WriteLine("WS:" + service.port + "[" + id + "] error: " + ex.ToString());
+						Logger.WriteLine("WS:" + service.fullname() + "[" + id + "] error: " + ex.ToString());
 						Logger.WriteLine(ex.StackTrace);
 					}
 				}
 			}
 			_stop = true;
-			Logger.WriteLine("WS:" + service.port + "[" + id + "] state :" + socket.State);
-			Logger.WriteLine("WS:" + service.port + "[" + id + "] disconnect :" + url);
+			Logger.WriteLine("WS:" + service.fullname() + "[" + id + "] state :" + socket.State);
+			Logger.WriteLine("WS:" + service.fullname() + "[" + id + "] disconnect :" + url);
 			service.Remove(this);
 		}
 		protected void onMessage(WebSocket socket, string data)
 		{
-			Logger.WriteLine("WS:" + service.port + "[" + id + "]: " + data);
+			Logger.WriteLine("WS:" + service.fullname() + "[" + id + "]: " + data);
 			//data += " ok";
 			data = Program.udpTello.parse(data);
 			send(data);

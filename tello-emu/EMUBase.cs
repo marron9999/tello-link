@@ -25,6 +25,7 @@ namespace tello_link
 	{
 		protected string name = "EMUServer";
 		protected int Port = 0;
+		protected IPAddress Addr;
 		protected UdpClient client;
 		public EMUBase(string name)
 		{
@@ -33,7 +34,8 @@ namespace tello_link
 		public virtual void Open(int port)
 		{
 			this.Port = port;
-			IPEndPoint ep = new IPEndPoint(IPAddress.Any, port);
+			this.Addr = IPAddress.Any;
+			IPEndPoint ep = new IPEndPoint(Addr, Port);
 			client = new UdpClient(ep);
 			base.Open();
 		}

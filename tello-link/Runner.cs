@@ -8,7 +8,7 @@ namespace tello_link
 	{
 		protected Task _task;
 		protected bool _stop;
-		public virtual void Run()
+		public virtual async void Run()
 		{
 		}
 		public virtual void Close()

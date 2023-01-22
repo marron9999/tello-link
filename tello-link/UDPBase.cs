@@ -24,20 +24,34 @@ namespace tello_link
 	public class UDPBase : Runner
 	{
 		protected string name = "UDPServer";
-		protected int Port = 0;
 		protected UdpClient client;
+		protected int Port;
+		protected IPAddress Addr;
 		public UDPBase(string name)
 		{
 			this.name = name;
 		}
+		protected string fullname()
+		{
+			return name + " " + Addr + ":" + Port;
+		}
 		public virtual void Open(int port)
 		{
-			Port = port;
 			if(port > 0)
 			{
-				IPEndPoint ep = new IPEndPoint(IPAddress.Any, Port);
+				Port = port;
+				Addr = IPAddress.Any;
+				IPEndPoint ep = new IPEndPoint(Addr, Port);
 				client = new UdpClient(ep);
 			}
+			base.Open();
+		}
+		public virtual void Open(string addr, int port)
+		{
+			Port = port;
+			Addr = IPAddress.Parse(addr);
+			IPEndPoint ep = new IPEndPoint(Addr, Port);
+			client = new UdpClient(ep);
 			base.Open();
 		}
 		public override void Stop()

@@ -19,7 +19,7 @@ namespace tello_link
 	{
 		public TCPStream()
 		{
-			port = 8081;
+			Port = 8081;
 		}
 	}
 }
