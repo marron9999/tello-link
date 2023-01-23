@@ -1,15 +1,8 @@
-﻿using System.IO;
-using System.Net;
-using System.Net.WebSockets;
-using System.Resources;
-using System.Text;
+﻿using System.Configuration;
 using System.Drawing.Imaging;
-using System.Security.Policy;
-using System.Configuration;
+using System.Net;
+using System.Text;
 
-
-
-#pragma warning disable CS8601 // Null 参照代入の可能性があります。
 #pragma warning disable CS8618 // null 非許容のフィールドには、コンストラクターの終了時に null 以外の値が入っていなければなりません。Null 許容として宣言することをご検討ください。
 #pragma warning disable CS8600 // Null リテラルまたは Null の可能性がある値を Null 非許容型に変換しています。
 #pragma warning disable CS8604 // Null 参照引数の可能性があります。
@@ -21,22 +14,24 @@ namespace tello_link
 		protected string name = "TCP";
 		protected int Port = 8080;
 		protected IPAddress Addr = IPAddress.Any;
-
 		protected HttpListener listener;
 
 		public TCPBase()
 		{
 		}
+
 		public string fullname()
 		{
 			return name + " " + Addr + ":" + Port;
 		}
+
 		public override void Stop()
 		{
 			_stop = true;
 			listener.Abort();
 			base.Stop();
 		}
+
 		public override void Run()
 		{
 			try
@@ -67,10 +62,12 @@ namespace tello_link
 			}
 			log(fullname(), "close");
 		}
+
 		protected virtual void Request(HttpListenerContext context)
 		{
 			RequestHTTP(context);
 		}
+
 		protected virtual void RequestHTTP(HttpListenerContext context)
 		{
 			HttpListenerRequest req = context.Request;

@@ -51,8 +51,6 @@ namespace tello_link
 			}
 		}
 
-		
-
 		public static void WriteLine(float value)
 		{
 			Console.WriteLine("" + value);

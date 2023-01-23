@@ -1,19 +1,11 @@
 ﻿using System.Net.Sockets;
 using System.Text;
-using System.Windows.Forms;
-using static System.Windows.Forms.LinkLabel;
 
-
-
-#pragma warning disable CS8601 // Null 参照代入の可能性があります。
 #pragma warning disable CS8618 // null 非許容のフィールドには、コンストラクターの終了時に null 以外の値が入っていなければなりません。Null 許容として宣言することをご検討ください。
-#pragma warning disable CS8604 // Null 参照引数の可能性があります。
-#pragma warning disable CS8625 // null リテラルを null 非許容参照型に変換できません。
-#pragma warning disable CS8600 // Null リテラルまたは Null の可能性がある値を Null 非許容型に変換しています。
 
 namespace tello_link
 {
-	public class EMUState : EMURunner
+	public class EMUState : Runner
 	{
 		public EMUTello tello;
 		private UdpClient state;
@@ -26,6 +18,7 @@ namespace tello_link
 		public long fly_prev = 0;
 		public DateTime take_time = DateTime.Now;
 		public DateTime reset_time = DateTime.Now;
+
 		public void reset()
 		{
 			reset_time = DateTime.Now;
@@ -59,11 +52,13 @@ namespace tello_link
 			now["agy"] = "" + 0f;
 			now["agz"] = "" + 0f;
 		}
+
 		public override void Close()
 		{
 			state.Close();
 			base.Close();
 		}
+
 		public override void Run()
 		{
 			log("EMUState", "connect 127.0.0.1:" + port);

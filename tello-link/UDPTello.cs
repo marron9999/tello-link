@@ -1,15 +1,8 @@
-﻿using System.DirectoryServices;
-using System.Net;
-using System.Net.Sockets;
+﻿using System.Net;
 using System.Reflection;
 using System.Text;
-using System.Threading;
-using System.Windows.Forms;
-using System.Xml.Linq;
 
-#pragma warning disable CS8601 // Null 参照代入の可能性があります。
 #pragma warning disable CS8618 // null 非許容のフィールドには、コンストラクターの終了時に null 以外の値が入っていなければなりません。Null 許容として宣言することをご検討ください。
-#pragma warning disable CS8604 // Null 参照引数の可能性があります。
 #pragma warning disable CS8625 // null リテラルを null 非許容参照型に変換できません。
 #pragma warning disable CS8600 // Null リテラルまたは Null の可能性がある値を Null 非許容型に変換しています。
 
@@ -22,6 +15,12 @@ namespace tello_link
 		private UDPTelloSDK tello_sdk;
 		private int tello_port;
 		private string tello_addr;
+		public bool mode_sdk = false;
+		public bool mode_fly = false;
+		public bool mode_eye = false;
+		private Object _lock = new Object();
+		private string _result = null;
+		private bool _logging = true;
 
 		public UDPTello() : base("UDPTello")
 		{
@@ -59,6 +58,7 @@ namespace tello_link
 			stream.Open();
 			tello_sdk.Open();
 		}
+
 		public override void Close()
 		{
 			tello_sdk.Close();
@@ -83,12 +83,6 @@ namespace tello_link
 			log(fullname(), "close");
 		}
 
-		public bool mode_sdk = false;
-		public bool mode_fly = false;
-		public bool mode_eye = false;
-		private Object _lock = new Object();
-		private string _result = null;
-		private bool _logging = true;
 		public string result(string cmd, bool log)
 		{
 			return result(cmd, 5, log);
@@ -226,6 +220,7 @@ namespace tello_link
 			}
 			return "ok";
 		}
+
 		public string disconnect()
 		{
 			if (!mode_sdk) return "disconnect error (nosdk)";
@@ -249,6 +244,7 @@ namespace tello_link
 				mode_sdk = true;
 			return rc;
 		}
+
 		public string takeoff()
 		{
 			// Auto takeoff.
@@ -259,6 +255,7 @@ namespace tello_link
 				mode_fly = true;
 			return rc;
 		}
+
 		public string land()
 		{
 			//Auto landing.
@@ -268,6 +265,7 @@ namespace tello_link
 			string rc = result("land", 10);
 			return rc;
 		}
+
 		public string streamon()
 		{
 			// Enable video stream.
@@ -279,6 +277,7 @@ namespace tello_link
 			}
 			return rc;
 		}
+
 		public string streamoff()
 		{
 			// Disable video stream.
@@ -290,6 +289,7 @@ namespace tello_link
 			}
 			return rc;
 		}
+
 		public string emergency()
 		{
 			// Stop motors immediately.
@@ -298,6 +298,7 @@ namespace tello_link
 			mode_fly = false;
 			return "";
 		}
+
 		public string up(string x)
 		{
 			// Ascend to “x” cm.
@@ -307,6 +308,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string down(string x)
 		{
 			// down “x” Descend to “x” cm.
@@ -316,6 +318,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string left(string x)
 		{
 			// Fly left for “x” cm.
@@ -325,6 +328,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string right(string x)
 		{
 			// Fly right for “x” cm.
@@ -334,6 +338,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string forward(string x)
 		{
 			// Fly forward for “x” cm.
@@ -343,6 +348,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string back(string x)
 		{
 			// Fly backward for “x” cm.
@@ -352,6 +358,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string cw(string x)
 		{
 			// Rotate “x” degrees clockwise.
@@ -361,6 +368,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string ccw(string x)
 		{
 			// Rotate “x” degrees counterclockwise.
@@ -370,6 +378,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string flip(string x)
 		{
 			// Flip in “x” direction.
@@ -381,6 +390,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string go(string x, string y, string z, string speed)
 		{
 			// Fly to “x” “y” “z” at “speed” (cm/s).
@@ -398,6 +408,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string stop()
 		{
 			// Hovers in the air.
@@ -406,6 +417,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string curve(string x1, string y1, string z1, string x2, string y2, string z2, string speed)
 		{
 			// Fly at a curve according to the two given coordinates
@@ -429,6 +441,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string go(string x, string y, string z, string speed, string mid)
 		{
 			// Fly to the “x”, “y”, and “z” coordinates of the Mission
@@ -448,6 +461,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string curve(string x1, string y1, string z1, string x2, string y2, string z2, string speed, string mid)
 		{
 			// Fly at a curve according to the two given coordinates
@@ -471,6 +485,7 @@ namespace tello_link
 			if (!mode_fly) return "error (nofly)";
 			return "";
 		}
+
 		public string jump(string x, string y, string z, string speed, string yaw, string mid1, string mid2)
 		{
 			// Fly to coordinates “x”, “y”, and “z” of Mission Pad 1,
@@ -503,6 +518,7 @@ namespace tello_link
 			if (!validate(x, 10, 100)) return "error (x)";
 			return "";
 		}
+
 		public string rc(string a, string b, string c, string d)
 		{
 			// Set remote controller control via four channels.
@@ -518,6 +534,7 @@ namespace tello_link
 			if (!validate(d, -110, 100)) return "error (yaw)";
 			return "";
 		}
+
 		public string wifi(string ssid, string pass)
 		{
 			// Set Wi-Fi password.
@@ -526,18 +543,21 @@ namespace tello_link
 			if (!mode_sdk) return "error (nosdk)";
 			return "";
 		}
+
 		public string mon() {
 			// Enable mission pad detection (both forward and
 			// downward detection).
 			if (!mode_sdk) return "error (nosdk)";
 			return "";
 		}
+
 		public string moff()
 		{
 			// Disable mission pad detection.
 			if (!mode_sdk) return "error (nosdk)";
 			return "";
 		}
+
 		public string mdirection(string x)
 		{
 			// “x” = 0/1/2
@@ -555,6 +575,7 @@ namespace tello_link
 			if (!mode_sdk) return "error (nosdk)";
 			return "";
 		}
+
 		public string ap(string ssid, string pass)
 		{
 			// Set the Tello to station mode, and connect to a
@@ -575,30 +596,35 @@ namespace tello_link
 			if (!mode_sdk) return "error -1";
 			return "";
 		}
+
 		public string battery_()
 		{
 			// Obtain current battery percentage. “x” = 0-100
 			if (!mode_sdk) return "error -1";
 			return "";
 		}
+
 		public string time_()
 		{
 			// Obtain current flight time. “time”
 			if (!mode_sdk) return "error -1";
 			return "";
 		}
+
 		public string wifi_()
 		{
 			// Obtain Wi-Fi SNR. “snr”
 			if (!mode_sdk) return "error -1";
 			return tello_sdk.wifi;
 		}
+
 		public string sdk_()
 		{
 			// Obtain the Tello SDK version. “sdk version”
 			if (!mode_sdk) return "error -1";
 			return tello_sdk.sdk;
 		}
+
 		public string sn_()
 		{
 			// Obtain the Tello serial number. “serial number”
@@ -613,6 +639,7 @@ namespace tello_link
 		public string sn = "";
 		public string sdk = "";
 		public string wifi = "";
+
 		public override void Run()
 		{
 			while (true)

@@ -1,19 +1,11 @@
-﻿using OpenCvSharp;
-using OpenCvSharp.Extensions;
+﻿using System.Net;
 using System.Net.Sockets;
-using System.Net;
 using System.Text;
-using System.Windows.Forms;
-using System.Xml.Linq;
 
-#pragma warning disable CS8601 // Null 参照代入の可能性があります。
 #pragma warning disable CS8618 // null 非許容のフィールドには、コンストラクターの終了時に null 以外の値が入っていなければなりません。Null 許容として宣言することをご検討ください。
-#pragma warning disable CS8604 // Null 参照引数の可能性があります。
 
 namespace tello_link
 {
-
-	// Simple UDP Server
 	public struct Received
 	{
 		public IPEndPoint Sender;
@@ -27,14 +19,17 @@ namespace tello_link
 		protected UdpClient client;
 		protected int Port;
 		protected IPAddress Addr;
+
 		public UDPBase(string name)
 		{
 			this.name = name;
 		}
+
 		protected string fullname()
 		{
 			return name + " " + Addr + ":" + Port;
 		}
+
 		public virtual void Open(int port)
 		{
 			if(port > 0)
@@ -46,6 +41,7 @@ namespace tello_link
 			}
 			base.Open();
 		}
+
 		public virtual void Open(string addr, int port)
 		{
 			Port = port;
@@ -54,12 +50,14 @@ namespace tello_link
 			client = new UdpClient(ep);
 			base.Open();
 		}
+
 		public override void Stop()
 		{
 			_stop = true;
 			client.Close();
 			base.Stop();
 		}
+
 		public async Task<Received> Receive()
 		{
 			try

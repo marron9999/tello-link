@@ -1,15 +1,4 @@
-﻿using System.Configuration;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using static System.Windows.Forms.LinkLabel;
-
-
-#pragma warning disable CS8601 // Null 参照代入の可能性があります。
-#pragma warning disable CS8618 // null 非許容のフィールドには、コンストラクターの終了時に null 以外の値が入っていなければなりません。Null 許容として宣言することをご検討ください。
-#pragma warning disable CS8604 // Null 参照引数の可能性があります。
-#pragma warning disable CS8625 // null リテラルを null 非許容参照型に変換できません。
-#pragma warning disable CS8600 // Null リテラルまたは Null の可能性がある値を Null 非許容型に変換しています。
+﻿using System.Text;
 
 namespace tello_link
 {
@@ -33,6 +22,7 @@ namespace tello_link
 			state.Open();
 			camera.Open();
 		}
+
 		public override void Close()
 		{
 			camera.Close();
@@ -43,6 +33,7 @@ namespace tello_link
 		public void land() {
 			state.fly = false;
 		}
+
 		public override async void Run()
 		{
 			log(name + " " + Addr + ":" + Port, "open");

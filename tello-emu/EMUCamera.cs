@@ -1,19 +1,13 @@
-﻿using System;
-using System.Configuration;
-using System.Net;
-using System.Net.Sockets;
-using OpenCvSharp;
+﻿using OpenCvSharp;
 using OpenCvSharp.Extensions;
-using static OpenCvSharp.ML.DTrees;
+using System.Net.Sockets;
 
-#pragma warning disable CS8601 // Null 参照代入の可能性があります。
 #pragma warning disable CS8618 // null 非許容のフィールドには、コンストラクターの終了時に null 以外の値が入っていなければなりません。Null 許容として宣言することをご検討ください。
 #pragma warning disable CS8604 // Null 参照引数の可能性があります。
 
 namespace tello_link
 {
-
-	public class EMUCamera : EMURunner
+	public class EMUCamera : Runner
 	{
 		private UdpClient client;
 		private VideoCapture vc;
@@ -21,6 +15,7 @@ namespace tello_link
 		private int stream_fps = 2;
 		private int camera = 0;
 		private bool _send = false;
+
 		public void send(bool sw)
 		{
 			if(sw)
@@ -50,6 +45,7 @@ namespace tello_link
 			stream_fps = Program.Setting("stream_fps", 2);
 			camera = Program.Setting("camera", 0);
 		}
+
 		public override void Run()
 		{
 			vc = new VideoCapture();

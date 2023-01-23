@@ -1,26 +1,18 @@
-﻿using OpenCvSharp;
-using OpenCvSharp.Extensions;
-using System.Net.Sockets;
-using System.Net;
-using System.Text;
-using System.Windows.Forms;
-using System.Xml.Linq;
-
-#pragma warning disable CS8601 // Null 参照代入の可能性があります。
-#pragma warning disable CS8618 // null 非許容のフィールドには、コンストラクターの終了時に null 以外の値が入っていなければなりません。Null 許容として宣言することをご検討ください。
-#pragma warning disable CS8604 // Null 参照引数の可能性があります。
-
-namespace tello_link
+﻿namespace tello_link
 {
 	public class UDPState : UDPBase
 	{
+		private Dictionary<string, string> status = new Dictionary<string, string>();
+
 		public UDPState() : base("UDPState")
 		{
 		}
+
 		public override void Open() {
 			int port = Program.Setting("state_port", 8890);
 			base.Open(port);
 		}
+
 		public override async void Run()
 		{
 			log(fullname(), "open");
@@ -46,7 +38,6 @@ namespace tello_link
 			log(fullname(), "close");
 		}
 
-		private Dictionary<string, string> status = new Dictionary<string, string>();
 		private string state(string value, bool all = false)
 		{
 			// Data string received when the mission pad detection feature is enabled:

@@ -1,14 +1,9 @@
-﻿#pragma warning disable CS8601 // Null 参照代入の可能性があります。
-#pragma warning disable CS8618 // null 非許容のフィールドには、コンストラクターの終了時に null 以外の値が入っていなければなりません。Null 許容として宣言することをご検討ください。
-#pragma warning disable CS1998 // 非同期メソッドは、'await' 演算子がないため、同期的に実行されます
+﻿using System.Configuration;
 
-using System.Configuration;
-using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+#pragma warning disable CS8618 // null 非許容のフィールドには、コンストラクターの終了時に null 以外の値が入っていなければなりません。Null 許容として宣言することをご検討ください。
 
 namespace tello_link
 {
-
 	public class Program
 	{
 		public static int emulate = 0;
@@ -17,6 +12,7 @@ namespace tello_link
 		public static TCPStream tcpStream;
 		public static Form form;
 		public static NotifyIcon notifyIcon;
+
 		public static void Main(string[] args)
 		{
 #if DEBUG
@@ -25,7 +21,8 @@ namespace tello_link
 			emulate = Program.Setting("emulate", 0);
 #endif
 			Logger.Setup();
-			Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);
+			Application.EnableVisualStyles();
+			Application.SetCompatibleTextRenderingDefault(false);
 			ApplicationIcon();
 			udpTello = new UDPTello();
 			tcpServer = new TCPServer();
@@ -71,11 +68,12 @@ namespace tello_link
 			};
 			notifyIcon.ContextMenuStrip = menu;
 		}
+
 		public static void Connected(bool sw)
 		{
 			notifyIcon.Icon = (sw) ?
 				Resources.drone_icon_216206G :
-				Resources.drone_icon_216206; ;
+				Resources.drone_icon_216206;
 		}
 
 		public static int Setting(string key, int def)
