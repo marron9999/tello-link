@@ -11,7 +11,7 @@ namespace tello_link
 	{
 		private UdpClient client;
 		private VideoCapture vc;
-		private int stream_port = 11112;
+		private int stream_port = 11111;
 		private int stream_fps = 2;
 		private int camera = 0;
 		private bool _send = false;
@@ -41,7 +41,7 @@ namespace tello_link
 
 		public EMUCamera()
 		{
-			stream_port = Program.Setting("udp_port", 11112);
+			stream_port = Program.Setting("udp_port", 11111);
 			stream_fps = Program.Setting("stream_fps", 2);
 			camera = Program.Setting("camera", 0);
 		}

@@ -12,7 +12,7 @@ namespace tello_link
 		private int stream_port = 11111;
 		//private int stream_fps = 2;
 		private bool _send = true;
-		private int frame_port = 11112;
+		private int frame_port = 11111;
 
 		public UDPStream() : base("UDPStream")
 		{
@@ -23,8 +23,8 @@ namespace tello_link
 			stream_port = Program.Setting("stream_port", 11111);
 			//stream_fps = Program.Setting("stream_fps", 2);
 			if(Program.emulate > 0) {
-				frame_port = Program.Setting("frame_port", 11112);
-				base.Open(frame_port);
+				frame_port = Program.Setting("frame_port", 11111);
+				base.Open("127.0.0.1", frame_port);
 			}
 			else
 			{
@@ -37,7 +37,7 @@ namespace tello_link
 		{
 			if (Program.emulate > 0)
 			{
-				log(name, "open");
+				log(name, "open " + frame_port);
 				while (true)
 				{
 					Received recv = await Receive();
@@ -51,7 +51,7 @@ namespace tello_link
 						}
 					}
 				}
-				log(name, "close");
+				log(name, "close " + frame_port);
 				return;
 			}
 			string url = "udp://0.0.0.0:" + stream_port;
