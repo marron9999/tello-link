@@ -70,9 +70,9 @@ namespace tello_link
 					Sender = result.RemoteEndPoint
 				};
 			}
-			catch (Exception /*ex*/)
+			catch (Exception ex)
 			{
-				//
+				log(fullname(), ex.ToString());
 			}
 			return new Received();
 		}

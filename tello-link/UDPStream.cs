@@ -38,7 +38,7 @@ namespace tello_link
 			if (Program.emulate > 0)
 			{
 				log(name, "open " + frame_port);
-				while (true)
+				while (!_stop)
 				{
 					Received recv = await Receive();
 					if (recv.Sender == null) break;

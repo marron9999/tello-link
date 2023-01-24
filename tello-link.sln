@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tello-emu", "..\..\java\github\tello-link\tello-emu\tello-emu.csproj", "{DFD6FC69-062F-4902-AEE1-3E12613E17CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tello-link", "tello-link\tello-link.csproj", "{367D7CAA-9F8A-4005-A181-1A4258F044C5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tello-link", "..\..\java\github\tello-link\tello-link\tello-link.csproj", "{2F9DDDC1-865C-4E30-8420-AA9123037201}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tello-emu", "tello-emu\tello-emu.csproj", "{9865959F-4ADB-4630-BDB0-6E9D915F5B13}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DFD6FC69-062F-4902-AEE1-3E12613E17CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DFD6FC69-062F-4902-AEE1-3E12613E17CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DFD6FC69-062F-4902-AEE1-3E12613E17CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DFD6FC69-062F-4902-AEE1-3E12613E17CF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2F9DDDC1-865C-4E30-8420-AA9123037201}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F9DDDC1-865C-4E30-8420-AA9123037201}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F9DDDC1-865C-4E30-8420-AA9123037201}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F9DDDC1-865C-4E30-8420-AA9123037201}.Release|Any CPU.Build.0 = Release|Any CPU
+		{367D7CAA-9F8A-4005-A181-1A4258F044C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{367D7CAA-9F8A-4005-A181-1A4258F044C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{367D7CAA-9F8A-4005-A181-1A4258F044C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{367D7CAA-9F8A-4005-A181-1A4258F044C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9865959F-4ADB-4630-BDB0-6E9D915F5B13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9865959F-4ADB-4630-BDB0-6E9D915F5B13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9865959F-4ADB-4630-BDB0-6E9D915F5B13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9865959F-4ADB-4630-BDB0-6E9D915F5B13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

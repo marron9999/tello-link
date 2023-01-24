@@ -86,6 +86,7 @@ namespace tello_link
 					});
 					task.Start();
 					task.Wait();
+					land();
 				}
 				else if (recv.Message.StartsWith("up"))
 				{

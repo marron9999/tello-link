@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 
@@ -21,6 +22,7 @@ namespace tello_link
 		private Object _lock = new Object();
 		private string _result = null;
 		private bool _logging = true;
+		private UdpClient udpClient;
 
 		public UDPTello() : base("UDPTello")
 		{
@@ -38,6 +40,9 @@ namespace tello_link
 			{
 				tello_port = Program.Setting("emu_port", 8888);
 				tello_addr = "127.0.0.1";
+				udpClient = new UdpClient();
+				udpClient.Connect(tello_addr, tello_port);
+				base.Open(port);
 			}
 			else {
 				tello_port = Program.Setting("tello_port", 8889);
@@ -52,11 +57,20 @@ namespace tello_link
 						break;
 					}
 				}
+				base.Open(addr, port);
 			}
-			base.Open(addr, port);
 			state.Open();
 			stream.Open();
 			tello_sdk.Open();
+		}
+
+		public override void Stop()
+		{
+			_stop = true;
+			if(udpClient != null) {
+				udpClient.Close();
+			}
+			base.Stop();
 		}
 
 		public override void Close()
@@ -90,7 +104,6 @@ namespace tello_link
 
 		public string result(string cmd, int timeout = 5, bool logging = true)
 		{
-			lock (_lock)
 			{
 				DateTime _timeout = DateTime.Now;
 				_timeout = _timeout.AddSeconds(timeout);
@@ -98,32 +111,41 @@ namespace tello_link
 				_result = null;
 				try
 				{
-					Task<string> task = new Task<string>(() => {
-						string __result = null;
-						if(_logging)
-						{
-							Logger.WriteLine(name + ": " + cmd);
-						}
-						byte[] buf = Encoding.ASCII.GetBytes(cmd);
-						client.SendAsync(buf, buf.Length, tello_addr, tello_port);
-						while (__result == null)
-						{
-							Thread.Sleep(100);
-							__result = _result;
-						}
-						if (_timeout < DateTime.Now)
-						{
-							return "error (timeout)";
-						}
-						return __result;
-					});
-					task.Start();
-					task.Wait();
-					if (_logging)
+					lock (_lock)
 					{
-						Logger.WriteLine(name + ": " + cmd + " " + task.Result);
+						Task<string> task = new Task<string>(() => {
+							string __result = null;
+							if(_logging)
+							{
+								Logger.WriteLine(name + ": " + cmd);
+							}
+							byte[] buf = Encoding.ASCII.GetBytes(cmd);
+							if (udpClient == null)
+							{
+								client.SendAsync(buf, buf.Length, tello_addr, tello_port);
+							} else
+							{
+								udpClient.SendAsync(buf, buf.Length);
+							}
+							while (__result == null)
+							{
+								Thread.Sleep(100);
+								__result = _result;
+								if (_timeout < DateTime.Now)
+								{
+									return "error (timeout)";
+								}
+							}
+							return __result;
+						});
+						task.Start();
+						task.Wait();
+						if (_logging)
+						{
+							Logger.WriteLine(name + ": " + cmd + " " + task.Result);
+						}
+						return task.Result;
 					}
-					return task.Result;
 				}
 				catch (Exception ex)
 				{
@@ -642,7 +664,7 @@ namespace tello_link
 
 		public override void Run()
 		{
-			while (true)
+			while ( ! _stop)
 			{
 				string rc = tello.Command();
 				if (rc.IndexOf("ok") >= 0)
@@ -655,7 +677,7 @@ namespace tello_link
 					break;
 				}
 			}
-			while (true)
+			while (!_stop)
 			{
 				string rc = tello.result("battery?", 1, false);
 				if(rc == null){
