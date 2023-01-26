@@ -15,7 +15,14 @@ namespace tello_link
 		public virtual void Close()
 		{
 			Stop();
-			_task.Wait();
+			try
+			{
+				_task.Wait();
+			}
+			catch (Exception)
+			{
+				//
+			}
 		}
 
 		public virtual void Open()

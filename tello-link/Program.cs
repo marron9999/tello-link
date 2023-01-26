@@ -1,4 +1,6 @@
 ﻿using System.Configuration;
+using System.Windows.Forms;
+
 
 #pragma warning disable CS8618 // null 非許容のフィールドには、コンストラクターの終了時に null 以外の値が入っていなければなりません。Null 許容として宣言することをご検討ください。
 
@@ -12,6 +14,7 @@ namespace tello_link
 		public static TCPStream tcpStream;
 		public static Form form;
 		public static NotifyIcon notifyIcon;
+		public static string log;
 
 		public static void Main(string[] args)
 		{
@@ -20,6 +23,7 @@ namespace tello_link
 #else
 			emulate = Program.Setting("emulate", 0);
 #endif
+			log = Program.Setting("log", "");
 			Logger.Setup();
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);

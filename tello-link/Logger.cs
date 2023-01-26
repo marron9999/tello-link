@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text;
 
 namespace tello_link
 {
@@ -21,6 +22,11 @@ namespace tello_link
 		{
 			AllocConsole();
 			hConsole = GetConsoleWindow();
+			Console.SetError(Console.Out);
+			if (Program.log.Length > 0)
+			{
+				File.WriteAllText(Program.log, "", Encoding.UTF8);
+			}
 			if (Program.emulate > 0)
 			{
 				ShowWindow(hConsole, 1/*SW_SHOWNORMAL*/);
@@ -57,18 +63,39 @@ namespace tello_link
 		public static void WriteLine(float value)
 		{
 			Console.WriteLine("" + value);
+			if (Program.log.Length > 0)
+			{
+				lock (Program.log)
+				{
+					File.AppendAllText(Program.log, value + "\n", Encoding.UTF8);
+				}
+			}
 		}
 		public static void WriteLine(string str)
 		{
 			if (str == null || str.Length <= 0)
 				return;
 			Console.WriteLine(str);
+			if (Program.log.Length > 0)
+			{
+				lock(Program.log)
+				{
+					File.AppendAllText(Program.log, str + "\n", Encoding.UTF8);
+				}
+			}
 		}
 		public static void Write(string str)
 		{
 			if (str == null || str.Length <= 0)
 				return;
 			Console.Write(str);
+			if (Program.log.Length > 0)
+			{
+				lock (Program.log)
+				{
+					File.AppendAllText(Program.log, str, Encoding.UTF8);
+				}
+			}
 		}
 	}
 }

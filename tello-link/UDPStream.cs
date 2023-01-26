@@ -33,6 +33,18 @@ namespace tello_link
 			}
 		}
 
+		public override void Close()
+		{
+			_stop= true;
+			if(vc != null)
+			{
+				vc.Release();
+				vc.Dispose();
+			}
+			Stop();
+			//_task.Wait();
+		}
+
 		public override async void Run()
 		{
 			if (Program.emulate > 0)
@@ -91,13 +103,16 @@ namespace tello_link
 			}
 			catch (Exception ex)
 			{
-				if (!vc.IsDisposed)
+				if ( ! _stop)
 				{
-					log(fullname(), "error: " + ex.Message);
-					Logger.WriteLine(ex.StackTrace);
+					if ( ! vc.IsDisposed)
+					{
+						log(fullname(), "error: " + ex.Message);
+						Logger.WriteLine(ex.StackTrace);
+					}
 				}
 			}
-			if (!vc.IsDisposed)
+			if ( ! vc.IsDisposed)
 			{
 				vc.Dispose();
 			}

@@ -54,7 +54,15 @@ namespace tello_link
 		public override void Stop()
 		{
 			_stop = true;
-			client.Close();
+			try
+			{
+				client.Close();
+				client.Dispose();
+			}
+			catch (Exception)
+			{
+				// NONE
+			}
 			base.Stop();
 		}
 
@@ -72,7 +80,10 @@ namespace tello_link
 			}
 			catch (Exception ex)
 			{
-				log(fullname(), ex.ToString());
+				if( !_stop)
+				{
+					log(fullname(), ex.ToString());
+				}
 			}
 			return new Received();
 		}

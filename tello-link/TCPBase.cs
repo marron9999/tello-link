@@ -28,7 +28,13 @@ namespace tello_link
 		public override void Stop()
 		{
 			_stop = true;
-			listener.Abort();
+			try {
+				listener.Abort();
+			}
+			catch (Exception)
+			{
+				// NONE
+			}
 			base.Stop();
 		}
 
@@ -54,10 +60,13 @@ namespace tello_link
 			}
 			catch (Exception ex)
 			{
-				if(listener.IsListening)
+				if( ! _stop)
 				{
-					log(fullname(), ex.Message);
-					Logger.WriteLine(ex.StackTrace);
+					if (listener.IsListening)
+					{
+						log(fullname(), ex.Message);
+						Logger.WriteLine(ex.StackTrace);
+					}
 				}
 			}
 			log(fullname(), "close");
