@@ -5,6 +5,8 @@ var ws1, ws2;
 var line = 0;
 var bat = 0;
 var ani = -1;
+var speed = 10;
+var dist = 20;
 function elm(id) {
 	return document.getElementById(id);
 }
@@ -128,8 +130,33 @@ window.onload = function() {
 		}
 	};
 
+	elm("s1").style.background = "powderblue";
+	elm("d1").style.background = "powderblue";
+
 	document.body.addEventListener("keydown", keydown);
 	document.body.addEventListener("keyup", keyup);
+}
+
+function speedx(e) {
+	speed = parseInt(e.id.substring(1));
+	elm("s1").style.background = "";
+	elm("s2").style.background = "";
+	elm("s3").style.background = "";
+	elm("s" + speed).style.background = "powderblue";
+	if(speed == 1) speed = 10;
+	else if(speed == 2) speed = 50;
+	else speed = 100;
+	ws1.send("speed " + speed);
+}
+function distx(e) {
+	dist = parseInt(e.id.substring(1));
+	elm("d1").style.background = "";
+	elm("d2").style.background = "";
+	elm("d3").style.background = "";
+	elm("d" + dist).style.background = "powderblue";
+	if(dist == 1) dist = 20;
+	else if(dist == 2) dist = 50;
+	else dist = 0;
 }
 
 var vkey = 0;
@@ -141,56 +168,91 @@ function _keydown(code) {
 	if(code == "KeyW") {
 		vkey = code;
 		elm("ru").style.display = "inline-block";
-		let cmd = "up 20";
-		ws1.send(cmd);
+		if(dist == 0)
+			ws1.send("rc 0 0 30 0");
+		else {
+			let cmd = "up " + dist;
+			ws1.send(cmd);
+		}
 	}
 	if(code == "KeyS") {
 		vkey = code;
 		elm("rd").style.display = "inline-block";
-		let cmd = "down 20";
-		ws1.send(cmd);
+		if(dist == 0)
+			ws1.send("rc 0 0 -30 0");
+		else {
+			let cmd = "down " + dist;
+			ws1.send(cmd);
+		}
 	}
 	if(code == "KeyA") {
 		vkey = code;
 		elm("rl").style.display = "inline-block";
-		let cmd = "ccw 30";
-		ws1.send(cmd);
+		if(dist == 0)
+			ws1.send("rc 0 0 0 -30");
+		else {
+			let cmd = "ccw 30";
+			ws1.send(cmd);
+		}
 	}
 	if(code == "KeyD") {
 		vkey = code;
 		elm("rr").style.display = "inline-block";
-		let cmd = "cw 30";
-		ws1.send(cmd);
+		if(dist == 0)
+			ws1.send("rc 0 0 0 30");
+		else {
+			let cmd = "cw 30";
+			ws1.send(cmd);
+		}
 	}
 	if(code == "ArrowUp") {
 		vkey = code;
 		elm("g0").style.display = "inline-block";
-		let cmd = "forward 20";
-		ws1.send(cmd);
+		if(dist == 0)
+			ws1.send("rc 0 30 0 0");
+		else {
+			let cmd = "forward " + dist;
+			ws1.send(cmd);
+		}
 	}
 	if(code == "ArrowDown") {
 		vkey = code;
 		elm("g6").style.display = "inline-block";
-		let cmd = "back 20";
-		ws1.send(cmd);
+		if(dist == 0)
+			ws1.send("rc 0 -30 0 0");
+		else {
+			let cmd = "back " + dist;
+			ws1.send(cmd);
+		}
 	}
 	if(code == "ArrowLeft") {
 		vkey = code;
 		elm("g9").style.display = "inline-block";
-		let cmd = "left 20";
-		ws1.send(cmd);
+		if(dist == 0)
+			ws1.send("rc -30 0 0 0");
+		else {
+			let cmd = "left " + dist;
+			ws1.send(cmd);
+		}
 	}
 	if(code == "ArrowRight") {
 		vkey = code;
 		elm("g3").style.display = "inline-block";
-		let cmd = "right 20";
-		ws1.send(cmd);
+		if(dist == 0)
+			ws1.send("rc 30 0 0 0");
+		else {
+			let cmd = "right " + dist;
+			ws1.send(cmd);
+		}
 	}
 }
 function keyup(event) {
 	_keyup(event.code);
 }
 function _keyup(code) {
+	if(dist == 0) {
+		ws1.send("rc 0 0 0 0");
+	}
 	if(vkey == 0) return;
 	if(vkey != code) return;
 	vkey = 0;
@@ -239,6 +301,7 @@ function connected(sw) {
 		//elm("table3").style.display = "inline-block";
 		//elm("tableG").style.display = "inline-block";
 		tello = true;
+		ws1.send("speed " + speed);
 		return;
 	}
 	elm("connect1").style.display = "inline-block";

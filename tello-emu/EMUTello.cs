@@ -123,7 +123,7 @@ namespace tello_link
 				}
 				else if (recv.Message.Equals("wifi?"))
 				{
-					rc = "SNR";
+					rc = "90";
 				}
 				else if (recv.Message.Equals("@reset"))
 				{

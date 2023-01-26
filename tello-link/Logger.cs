@@ -21,11 +21,14 @@ namespace tello_link
 		{
 			AllocConsole();
 			hConsole = GetConsoleWindow();
-#if DEBUG
-			ShowWindow(hConsole, 1/*SW_SHOWNORMAL*/);
-#else
-			ShowWindow(hConsole, 0/*SW_HIDE*/);
-#endif
+			if (Program.emulate > 0)
+			{
+				ShowWindow(hConsole, 1/*SW_SHOWNORMAL*/);
+			}
+			else
+			{
+				ShowWindow(hConsole, 0/*SW_HIDE*/);
+			}
 		}
 
 		public static bool IsVisible()

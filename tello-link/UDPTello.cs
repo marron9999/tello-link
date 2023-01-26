@@ -131,7 +131,7 @@ namespace tello_link
 							{
 								Thread.Sleep(100);
 								__result = _result;
-								if (_timeout < DateTime.Now)
+								if (_timeout < DateTime.Now || ( _stop))
 								{
 									return "error (timeout)";
 								}
@@ -550,11 +550,20 @@ namespace tello_link
 			// “d” = yaw (-100-100)
 			if (!mode_sdk) return "error (nosdk)";
 			if (!mode_fly) return "error (nofly)";
-			if (!validate(a, -110, 100)) return "error (l/r)";
-			if (!validate(b, -110, 100)) return "error (f/b)";
-			if (!validate(c, -110, 100)) return "error (u/d)";
-			if (!validate(d, -110, 100)) return "error (yaw)";
-			return "";
+			if (!validate(a, -100, 100)) return "error (l/r)";
+			if (!validate(b, -100, 100)) return "error (f/b)";
+			if (!validate(c, -100, 100)) return "error (u/d)";
+			if (!validate(d, -100, 100)) return "error (yaw)";
+			byte[] buf = Encoding.ASCII.GetBytes("rc " + a + " " + b + " " + c + " " + d);
+			if (udpClient == null)
+			{
+				client.SendAsync(buf, buf.Length, tello_addr, tello_port);
+			}
+			else
+			{
+				udpClient.SendAsync(buf, buf.Length);
+			}
+			return "ok";
 		}
 
 		public string wifi(string ssid, string pass)
