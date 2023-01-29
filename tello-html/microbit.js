@@ -68,6 +68,56 @@ async function onmbitble2() {
 	}
 }
 
+let _x = 0;
+let _y = 0;
+
+function xy() {
+	if(_x <= -0.25) {
+		//E("x").style.transform = "translate(-25px, 0px)";
+		if(_y <= -0.25) {
+			if(_d1x == "ArrowLeftUp") return;
+			_keyup(_d1x);
+			_keydown(_d1x = "ArrowLeftUp");
+		} else if(_y >= 0.25) {
+			if(_d1x == "ArrowLeftDown") return;
+			_keyup(_d1x);
+			_keydown(_d1x = "ArrowLeftDown");
+		} else {
+			if(_d1x == "ArrowLeft") return;
+			_keyup(_d1x);
+			_keydown(_d1x = "ArrowLeft");
+		}
+	} else if(_x >= 0.25) {
+		//E("x").style.transform = "translate(25px, 0px)";
+		if(_y <= -0.25) {
+			if(_d1x == "ArrowRightUp") return;
+			_keyup(_d1x);
+			_keydown(_d1x = "ArrowRightUp");
+		} else if(_y >= 0.25) {
+			if(_d1x == "ArrowRightDown") return;
+			_keyup(_d1x);
+			_keydown(_d1x = "ArrowRightDown");
+		} else {
+			if(_d1x == "ArrowRight") return;
+			_keyup(_d1x);
+			_keydown(_d1x = "ArrowRight");
+		}
+	} else if(_y <= -0.25) {
+		if(_d1x == "ArrowUp") return;
+		_keyup(_d1x);
+		_keydown(_d1x = "ArrowUp");
+	} else if(_y >= 0.25) {
+		if(_d1x == "ArrowDown") return;
+		_keyup(_d1x);
+		_keydown(_d1x = "ArrowDown");
+	} else {
+		//E("x").style.transform = "translate(0px, 0px)";
+		if(_d1x == "") return;
+		_keyup(_d1x);
+		_d1x = "";
+	}
+}
+
 let _d1x = "";
 let _d1y = "";
 let _d2x = "";
@@ -81,41 +131,15 @@ let initBLE1 = function () {
 		raw = raw.replace(/\n/g, "");
 		let d = raw.split(" ");
 		if(d[0] == "X") {
-			d[1] = parseInt(parseFloat(d[1]) * 100) / 100;
+			_x = parseInt(parseFloat(d[1]) * 100) / 100;
 			//LOG0(d);
-			if(d[1] <= -0.25) {
-				//E("x").style.transform = "translate(-25px, 0px)";
-				if(_d1x == "ArrowLeft") return;
-				_keydown(_d1x = "ArrowLeft");
-			} else if(d[1] >= 0.25) {
-				//E("x").style.transform = "translate(25px, 0px)";
-				if(_d1x == "ArrowRight") return;
-				_keydown(_d1x = "ArrowRight");
-			} else {
-				//E("x").style.transform = "translate(0px, 0px)";
-				if(_d1x == "") return;
-				_keyup(_d1x);
-				_d1x = "";
-			}
+			xy();
 			return;
 		}
 		if(d[0] == "Y") {
-			d[1] = parseInt(parseFloat(d[1]) * 100) / 100;
+			_y = parseInt(parseFloat(d[1]) * 100) / 100;
 			//LOG0(d);
-			if(d[1] <= -0.25) {
-				//E("y").style.transform = "rotate(-30deg)";
-				if(_d1y == "ArrowUp") return;
-				_keydown(_d1y = "ArrowUp");
-			} else if(d[1] >= 0.25) {
-				//E("y").style.transform = "rotate(30deg)";
-				if(_d1y == "ArrowDown") return;
-				_keydown(_d1y = "ArrowDown");
-			} else {
-				//E("y").style.transform = "rotate(0deg)";
-				if(_d1y == "") return;
-				_keyup(_d1y);
-				_d1y = "";
-			}
+			xy();
 			return;
 		}
 		if(d[0] == "Z") {

@@ -241,7 +241,9 @@ button {
    }
 }
 
-#g0, #g3, #g6, #g9, #rl, #rr, #ru, #rd {
+#g0, #g3, #g6, #g9,
+#g30, #g36, #g90, #g96,
+#rl, #rr, #ru, #rd {
 	position: absolute;
 	display:none;
 	font-size:36px;
@@ -282,7 +284,7 @@ button {
 	left: calc(50% - 10px);
 }
 #g6 {
-	top: calc(50% - 24px);
+	top: calc(50% - 22px);
 	left: calc(50% - 20px);
 	transform: rotate(90deg);
 }
@@ -290,6 +292,26 @@ button {
 	top: calc(50% - 32px);
 	left: calc(50% - 28px);
 	transform: rotate(180deg);
+}
+#g30 {
+	top: calc(50% - 45px);
+	left: calc(50% - 0px);
+	transform: rotate(-45deg);
+}
+#g36 {
+	top: calc(50% - 18px);
+	left: calc(50% - 6px);
+	transform: rotate(45deg);
+}
+#g90 {
+	top: calc(50% - 45px);
+	left: calc(50% - 30px);
+	transform: rotate(-135deg);
+}
+#g96 {
+	top: calc(50% - 20px);
+	left: calc(50% - 32px);
+	transform: rotate(135deg);
 }
 
 #connect0, #stream0, #stream1,
@@ -344,7 +366,7 @@ button {
 #tableZ {
 	left:210px;
 	bottom: 12px;
-	/*display: none;*/
+	width: 160px;
 }
 #tableZ span {
 	padding-top: 2px;
