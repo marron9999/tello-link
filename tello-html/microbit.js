@@ -8,14 +8,28 @@ async function onmbitble1() {
 	if(e.style.background != "pink") {
 		initBLE1();
 		//MBIT1.LOG('MBIT1.connect("UART", UART1)');
-		await MBIT1.connect("UART", UART1);
-		if (MBIT1._device != null) {
+		MBIT1.connected = function () {
+			let e = elm("mbitble1");
 			e.style.background = "pink";
 			xlog("connect " + MBIT1._device_name);
 			e = elm("mbitble2");
 			e.disabled = "";
 			e.children[0].style.filter = "opacity(1)";
-		}
+		};
+		MBIT1.disconnected = function () {
+			let e = elm("mbitble1");
+			e.style.background = "";
+			e = elm("mbitble2");
+			e.disabled = "disabled";
+			e.children[0].style.filter = "opacity(0.3)";
+			xlog("disconnect microbit 1");
+			MBIT1 = null;
+			if(MBIT2 != null) {
+				MBIT2.disconnect();
+				MBIT2 = null;
+			}
+		};
+		await MBIT1.connect("UART", UART1);
 	} else {
 		e.style.background = "";
 		e = elm("mbitble2");
@@ -35,11 +49,18 @@ async function onmbitble2() {
 	if(e.style.background != "pink") {
 		initBLE2();
 		//MBIT1.LOG('MBIT2.connect("UART", UART2)');
-		await MBIT2.connect("UART", UART2);
-		if (MBIT2._device != null) {
+		MBIT1.connected = function () {
+			let e = elm("mbitble2");
 			e.style.background = "pink";
 			xlog("connect " + MBIT2._device_name);
-		}
+		};
+		MBIT1.disconnected = function () {
+			let e = elm("mbitble2");
+			e.style.background = "";
+			xlog("disconnect microbit 2");
+			MBIT2 = null;
+		};
+		await MBIT2.connect("UART", UART2);
 	} else {
 		e.style.background = "";
 		MBIT2.disconnect();
@@ -47,8 +68,6 @@ async function onmbitble2() {
 	}
 }
 
-let pm = 0;
-let _tof = "";
 let _d1x = "";
 let _d1y = "";
 let _d2x = "";
@@ -132,35 +151,6 @@ let initBLE1 = function () {
 			}
 			return;
 		}
-		if(d[0] == "LOGO") {
-			//LOG0(d);
-			if(d[1] == "1") {
-				pm = (pm + 1) % 2;
-				if(pm == 1) {
-					//E("m").innerHTML = "モーター オン";
-					//E("q").className = "a";
-					let e = elm(_tof = "takeoff1");
-					e.style.background = "pink";
-					e.click();
-					setTimeout(function() {
-						elm(_tof).style.background = "";
-						_tof = "";
-					}, 1000);
-				} else {
-					//E("m").innerHTML = "モーター オフ";
-					//E("q").className = "";
-					let e = elm(_tof = "takeoff0");
-					e.style.background = "pink";
-					e.click();
-					setTimeout(function() {
-						elm(_tof).style.background = "";
-						_tof = "";
-					}, 1000);
-				}
-			}
-			pm != d[1];
-			return;
-		}
 		if(d[0] == "P1") {
 			//LOG0(d);
 			if(d[1] == "1") {
@@ -187,6 +177,10 @@ let initBLE1 = function () {
 				_keyup(_ble);
 				_ble = "";
 			}
+			return;
+		}
+		if(d[0] == "LOGO") {
+			logo(d);
 			return;
 		}
 	};
@@ -260,33 +254,24 @@ initBLE2 = function () {
 			return;
 		}
 		if(d[0] == "LOGO") {
-			LOG0(d);
-			if(d[1] == "1") {
-				pm = (pm + 1) % 2;
-				if(pm == 1) {
-					//E("m").innerHTML = "モーター オン";
-					//E("q").className = "a";
-					let e = elm(_tof = "takeoff1");
-					e.style.background = "pink";
-					e.click();
-					setTimeout(function() {
-						elm(_toff).style.background = null;
-						_toff = "";
-					}, 1000);
-				} else {
-					//E("m").innerHTML = "モーター オフ";
-					//E("q").className = "";
-					let e = elm(_tof = "takeoff0");
-					e.style.background = "pink";
-					e.click();
-					setTimeout(function() {
-						elm(_tof).style.background = null;
-						_tof = "";
-					}, 1000);
-				}
-			}
-			pm != d[1];
+			logo(d);
 			return;
 		}
 	};
 }
+
+function logo(d) {
+	//LOG0(d);
+	if(d[1] == "1") {
+		if(ani < 0) {
+			//E("m").innerHTML = "モーター オン";
+			//E("q").className = "a";
+			takeoff(1);
+		} else {
+			//E("m").innerHTML = "モーター オフ";
+			//E("q").className = "";
+			takeoff(0);
+		}
+	}
+}
+

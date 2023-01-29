@@ -147,9 +147,9 @@ function state(m) {
 			}
 		}
 	}
-	err = err.trim();
-	xlog(err);
-	return err;
+	er = er.trim();
+	xlog(er);
+	return er;
 }
 function xlog(err) {
 	if(err == "") return;
