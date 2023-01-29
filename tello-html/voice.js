@@ -47,7 +47,7 @@ function push1(id) {
 	elm(id).style.background = "pink";
 	elm(id).click();
 	setTimeout(function() {
-		elm(id).style.background = "";
+		elm(id).style.background = null;
 		prev = "";
 	}, 1000);
 }
@@ -57,7 +57,7 @@ function push2(id) {
 	elm(id).style.background = "pink";
 	elm(id).click();
 	setTimeout(function() {
-		elm(id).style.background = "";
+		elm(id).style.background = null;
 		prev = "";
 	}, 1000);
 }
@@ -132,8 +132,15 @@ recognition.onend = (event) => {
 	//elm("out" + out).innerHTML = "";
 	if(repeat) {
 		recognition.start();
+		return;
 	}
+	//let e = elm("voice");
+	//e.style.background = null;
 }
+//recognition.onerror = (event) => {
+//	xlog(event.type + " SpeechRecognition," + event.message);
+//}
+
 function onvoice() {
 	let e = elm("voice");
 	if(e.style.background != "pink") {
@@ -142,7 +149,8 @@ function onvoice() {
 		recognition.start();
 	} else {
 		repeat = false;
-		e.style.background = "";
+		e.style.background = null;
+		recognition.abort();
 		recognition.stop();
 	}
 }

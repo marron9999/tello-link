@@ -4,12 +4,19 @@
 <meta charset="UTF-8">
 <title>Tello</title>
 <script type="text/javascript" src="index.js"></script>
+<script type="text/javascript" src="keydown.js"></script>
 <script type="text/javascript" src="voice.js"></script>
+<script type="text/javascript" src="mbitble.js"></script>
+<script type="text/javascript" src="mbituuid.js"></script>
+<script type="text/javascript" src="microbit.js"></script>
 <link type="text/css" href="index.css" rel="stylesheet">
 <link rel="icon" href="drone_icon_216206.ico">
 <body>
 <div id=tableY>
 <button onclick="onvoice()" id=voice><img src=01099.png></button
+>&nbsp;<button onclick="onmbitble1()" id=mbitble1><img src=microbit.png></button
+>&nbsp;<button disabled onclick="onmbitble2()" id=mbitble2
+><img style="filter:opacity(0.3)" src=microbit2.png></button
 >&nbsp;&nbsp;<button onclick="connect(1)" id=connect1>接続</button
 ><button onclick="connect(0)" id=connect0>切断</button
 >&nbsp;&nbsp;<button onclick="stream(1)" id=stream1>カメラ</button

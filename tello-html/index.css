@@ -82,10 +82,14 @@ button {
 	/*display: none;*/
 	line-height: 1.6;
 }
+#mbitble1,
+#mbitble2,
 #voice {
 	line-height: 20px;
 	padding: 1px 3px;
 }
+#mbitble1 img,
+#mbitble2 img,
 #voice img {
 	border: 0;
 	width: 16px;

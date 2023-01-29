@@ -30,7 +30,12 @@ window.onload = function() {
 	//let player = new JSMpeg.Player(url, {canvas: canvas, audio: false});
 
 	ws1 = new WebSocket('ws://' + server + ':8080');
+	ws1.onerror = function(e) {
+		xlog(e.type + " " + e.target.url);
+		elm("connect1").disabled = "disabled";
+	};
 	ws2 = new WebSocket('ws://' + server + ':8081');
+	ws2.onerror = function(e) { xlog(e.type + " " + e.target.url); };
 	ws2.onmessage = function (event) {
 		if(event.data instanceof Blob) {
    			const img = new Image();
@@ -46,12 +51,16 @@ window.onload = function() {
 		if(event.data == "") {
 			return;
 		}
+		event.data = state(event.data);
+		if(event.data == "") return;
+
 		if(event.data == "command ok") {
 			return;
 		}
 		if(event.data == "connect ok") {
 			connected(1);
-		} else
+			return;
+		}
 		if(event.data == "disconnect ok") {
 			elm('video-canvas').style.display = "none";
 			elm("img1").className = "";
@@ -61,72 +70,36 @@ window.onload = function() {
 			connected(0);
 			camera = false;
 			tello = false;
-		} else
+			return;
+		}
 		if(event.data == "streamon ok") {
 			elm('video-canvas').style.display = "inline-block";
 			camera = true;
-		} else
+			return;
+		}
 		if(event.data == "streamoff ok") {
 			elm('video-canvas').style.display = "none";
 			camera = false;
-		} else
-		if(event.data == "takeoff ok") {
-			flyani(1);
-		} else
-		if(event.data.indexOf("takeoff error") >= 0) {
-			flyani(-1);
-		} else
-		if(event.data == "land ok") {
-			flyani(-1);
-		} else
-		if(event.data == "emergency ok") {
-			flyani(-1);
+			return;
 		}
-		let json = {};
-		let er=1;
-		try {
-			eval("json = {" +  event.data.replace(/;/g, ",") + "};");
-			er=0;
-		} catch(e) { }
-		for(let name in json) {
-			let e = elm(name);
-			if(e == null)
-				 er++;
-			else {
-				if(e.innerHTML == "" + json[name]) {
-					e.style.backgroundColor = "#fff0";
-				} else {
-					e.style.backgroundColor = "#ff88";
-					e.innerHTML = "" + json[name];
-				}
-				if(name == "bat") {
-					bat = parseInt(json[name]);
-					let c = elm("batc");
-					c.style.width = "calc(" + bat + "% - 1px)";
-					if(bat >= 50) {
-						c.style.background = "#0f05";
-
-					} else if(bat >= 25) {
-						c.style.background = "#f905";
-					} else {
-						c.style.background = "#f005";
-						e.style.color = "red";
-					}
-					flyani(ani);
-				}
+		if(event.data.startsWith("takeoff")) {
+			elm("takeoff1").style.background = "";
+			if(event.data == "takeoff ok") {
+				flyani(1);
+				return;
 			}
+			flyani(-1);
+			return;
 		}
-		if(er>0) {
-			let e = elm('tello-message');
-			if(line < 50) {
-				line++;
-				e.innerHTML += "<div>" + event.data + "</div>";
-			} else {
-				let p = e.innerHTML.indexOf("</div>");
-				e.innerHTML = e.innerHTML.substr(p+6)
-				+ "<div>" + event.data + "</div>";
-			}
-			e.scrollBy(0, 9999);
+		if(event.data.startsWith("land")) {
+			elm("takeoff0").style.background = "";
+			flyani(-1);
+			return;
+		}
+		if(event.data.startsWith("emergency")) {
+			elm("takeoff0").style.background = "";
+			flyani(-1);
+			return;
 		}
 	};
 
@@ -135,6 +108,61 @@ window.onload = function() {
 
 	document.body.addEventListener("keydown", keydown);
 	document.body.addEventListener("keyup", keyup);
+}
+
+function state(m) {
+	m = m.replace(/;/g, ",");
+	let json = {};
+	let er = m;
+	try {
+		eval("json = {" +  m + "};");
+		er = "";
+	} catch(e) {
+	}
+	for(let name in json) {
+		let e = elm(name);
+		if(e == null)
+			 er += " " + name + ":" +json[name];
+		else {
+			if(e.innerHTML == "" + json[name]) {
+				e.style.backgroundColor = "#fff0";
+			} else {
+				e.style.backgroundColor = "#ff88";
+				e.innerHTML = "" + json[name];
+			}
+			if(name == "bat") {
+				bat = parseInt(json[name]);
+				let c = elm("batc");
+				c.style.width = "calc(" + bat + "% - 1px)";
+				if(bat >= 50) {
+					c.style.background = "#0f05";
+
+				} else if(bat >= 25) {
+					c.style.background = "#f905";
+				} else {
+					c.style.background = "#f005";
+					e.style.color = "red";
+				}
+				flyani(ani);
+			}
+		}
+	}
+	err = err.trim();
+	xlog(err);
+	return err;
+}
+function xlog(err) {
+	if(err == "") return;
+	let e = elm('tello-message');
+	if(line < 50) {
+		line++;
+		e.innerHTML += "<div>" + err + "</div>";
+	} else {
+		let p = e.innerHTML.indexOf("</div>");
+		e.innerHTML = e.innerHTML.substr(p+6)
+		+ "<div>" + err + "</div>";
+	}
+	e.scrollBy(0, 9999);
 }
 
 function speedx(e) {
@@ -146,148 +174,28 @@ function speedx(e) {
 	if(speed == 1) speed = 10;
 	else if(speed == 2) speed = 50;
 	else speed = 100;
-	ws1.send("speed " + speed);
+	ws1send("speed " + speed);
 }
 function distx(e) {
-	dist = parseInt(e.id.substring(1));
+	let d = parseInt(e.id.substring(1));
+	dist_(d);
+}
+function dist_(d) {
 	elm("d1").style.background = "";
 	elm("d2").style.background = "";
 	elm("d3").style.background = "";
-	elm("d" + dist).style.background = "powderblue";
-	if(dist == 1) dist = 20;
-	else if(dist == 2) dist = 50;
+	elm("d" + d).style.background = "powderblue";
+	if(d == 1) dist = 20;
+	else if(d == 2) dist = 50;
 	else dist = 0;
-}
-
-var vkey = 0;
-function keydown(event) {
-	_keydown(event.code);
-}
-function _keydown(code) {
-	if(vkey != 0) return;
-	if(code == "KeyW") {
-		vkey = code;
-		elm("ru").style.display = "inline-block";
-		if(dist == 0)
-			ws1.send("rc 0 0 30 0");
-		else {
-			let cmd = "up " + dist;
-			ws1.send(cmd);
-		}
-	}
-	if(code == "KeyS") {
-		vkey = code;
-		elm("rd").style.display = "inline-block";
-		if(dist == 0)
-			ws1.send("rc 0 0 -30 0");
-		else {
-			let cmd = "down " + dist;
-			ws1.send(cmd);
-		}
-	}
-	if(code == "KeyA") {
-		vkey = code;
-		elm("rl").style.display = "inline-block";
-		if(dist == 0)
-			ws1.send("rc 0 0 0 -30");
-		else {
-			let cmd = "ccw 30";
-			ws1.send(cmd);
-		}
-	}
-	if(code == "KeyD") {
-		vkey = code;
-		elm("rr").style.display = "inline-block";
-		if(dist == 0)
-			ws1.send("rc 0 0 0 30");
-		else {
-			let cmd = "cw 30";
-			ws1.send(cmd);
-		}
-	}
-	if(code == "ArrowUp") {
-		vkey = code;
-		elm("g0").style.display = "inline-block";
-		if(dist == 0)
-			ws1.send("rc 0 30 0 0");
-		else {
-			let cmd = "forward " + dist;
-			ws1.send(cmd);
-		}
-	}
-	if(code == "ArrowDown") {
-		vkey = code;
-		elm("g6").style.display = "inline-block";
-		if(dist == 0)
-			ws1.send("rc 0 -30 0 0");
-		else {
-			let cmd = "back " + dist;
-			ws1.send(cmd);
-		}
-	}
-	if(code == "ArrowLeft") {
-		vkey = code;
-		elm("g9").style.display = "inline-block";
-		if(dist == 0)
-			ws1.send("rc -30 0 0 0");
-		else {
-			let cmd = "left " + dist;
-			ws1.send(cmd);
-		}
-	}
-	if(code == "ArrowRight") {
-		vkey = code;
-		elm("g3").style.display = "inline-block";
-		if(dist == 0)
-			ws1.send("rc 30 0 0 0");
-		else {
-			let cmd = "right " + dist;
-			ws1.send(cmd);
-		}
-	}
-}
-function keyup(event) {
-	_keyup(event.code);
-}
-function _keyup(code) {
-	if(dist == 0) {
-		ws1.send("rc 0 0 0 0");
-	}
-	if(vkey == 0) return;
-	if(vkey != code) return;
-	vkey = 0;
-	if(code == "KeyW") {
-		elm("ru").style.display = "none";
-	}
-	if(code == "KeyS") {
-		elm("rd").style.display = "none";
-	}
-	if(code == "KeyA") {
-		elm("rl").style.display = "none";
-	}
-	if(code == "KeyD") {
-		elm("rr").style.display = "none";
-	}
-	if(code == "ArrowUp") {
-		elm("g0").style.display = "none";
-	}
-	if(code == "ArrowDown") {
-		elm("g6").style.display = "none";
-	}
-	if(code == "ArrowLeft") {
-		elm("g9").style.display = "none";
-	}
-	if(code == "ArrowRight") {
-		elm("g3").style.display = "none";
-	}
 }
 
 function connect(sw) {
 	if(sw > 0) {
-		ws1.send("connect");
+		ws1send("connect");
 		return;
 	}
-	ws1.send("disconnect");
+	ws1send("disconnect");
 }
 function connected(sw) {
 	if(sw > 0) {
@@ -301,7 +209,7 @@ function connected(sw) {
 		//elm("table3").style.display = "inline-block";
 		//elm("tableG").style.display = "inline-block";
 		tello = true;
-		ws1.send("speed " + speed);
+		ws1send("speed " + speed);
 		return;
 	}
 	elm("connect1").style.display = "inline-block";
@@ -318,22 +226,31 @@ function connected(sw) {
 }
 function stream(sw) {
 	if(sw > 0) {
-		ws1.send("streamon");
+		ws1send("streamon");
 		return;
 	}
-	ws1.send("streamoff");
+	ws1send("streamoff");
 }
 function takeoff(sw) {
 	if(sw > 0) {
-		flyani(0);
-		ws1.send("takeoff");
+		if(ws1send("takeoff")) {
+			elm("takeoff1").style.background = "pink";
+			flyani(0);
+		}
 		return;
 	}
 	if(sw < 0) {
-		ws1.send("emergency");
+		if(ws1send("emergency")) {
+			elm("poweroff").style.background = "pink";
+			setTimeout(function() {
+				elm("poweroff").style.background = "";
+			}, 1000);
+		}
 		return;
 	}
-	ws1.send("land");
+	if(ws1send("land")) {
+		elm("takeoff0").style.background = "pink";
+	}
 }
 function flyani(sw) {
 	ani = sw;
@@ -351,5 +268,17 @@ function flyani(sw) {
 	elm("img4").className = c + sw;
 }
 function stop() {
-	ws1.send("stop");
+	//ws1send("stop");
+	ws1send("rc 0 0 0 0");
+}
+function ws1send(s) {
+	try {
+		if(ws1.readyState == 1/*OPEN*/) {
+			ws1.send(s);
+			return true;
+		}
+	} catch(e) {
+		// NONE
+	}
+	return false;
 }
